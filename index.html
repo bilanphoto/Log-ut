@@ -2,137 +2,978 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>MAC Address List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAC Log Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #0f766e; /* Deep Teal */
+      --primary-light: #14b8a6; /* Bright Teal */
+      --primary-dark: #0f172a; /* Slate 900 */
+      --bg-color: #f8fafc; /* Slate 50 */
+      --card-bg: #ffffff;
+      --text-main: #0f172a; /* Slate 900 */
+      --text-muted: #64748b; /* Slate 500 */
+      --border-color: #e2e8f0; /* Slate 200 */
+      --success-color: #10b981; /* Emerald 500 */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --transition-speed: 0.2s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Prompt', sans-serif;
-      background-color: #e0f7fa;
-      padding: 30px;
-      color: #333;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-    .container {  width: 100%;
-  max-width: 800px;
-  margin: auto;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  box-sizing: border-box;
+
+    .dashboard-container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
+      border: 1px solid var(--border-color);
     }
-    h2 {
+
+    header {
       text-align: center;
-      color: #00796b;
-      margin-bottom: 20px;
+      margin-bottom: 32px;
     }
-    h3 {
-      margin-top: 30px;
-      color: #00796b;
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
     }
-    .device {
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Tabs Segmented Control */
+    .tabs-wrapper {
+      background: #f1f5f9; /* Slate 100 */
+      padding: 6px;
+      border-radius: 14px;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 24px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all var(--transition-speed) ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--primary-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Search Controls */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 14px 16px 14px 48px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 15px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      outline: none;
+      background-color: #fafafa;
+      transition: all var(--transition-speed) ease;
+      color: var(--text-main);
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-light);
+      background-color: var(--card-bg);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Tab Content States */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Area Headers */
+    .area-section {
+      margin-bottom: 32px;
+    }
+
+    .area-header {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .area-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    /* Device Card list */
+    .device-card {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
-      padding: 10px 15px;
-      border-radius: 10px;
-      margin: 8px 0;
-      flex-wrap: wrap;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 14px 20px;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      transition: all var(--transition-speed) ease;
     }
-    .device span {
-  font-size: 15px;
-  flex: 1 1 60%;
-  min-width: 180px;
-  margin-bottom: 5px;
-  word-break: break-word;
+
+    .device-card:hover {
+      border-color: var(--primary-light);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
     }
-    button {
-  padding: 8px 15px;
-  background-color: #00bcd4;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background-color 0.2s;
+
+    .device-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-grow: 1;
+      margin-right: 16px;
     }
-    button:hover {
-      background-color: #0097a7;
+
+    .device-desc {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .device-desc.empty {
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 13px;
+    }
+
+    .device-mac {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--primary-color);
+      background: #f0fdfa; /* Teal 50 */
+      padding: 2px 8px;
+      border-radius: 6px;
+      width: fit-content;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-copy {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .btn-copy:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-copy.copied {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .btn-copy svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast-container.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      color: var(--success-color);
+      display: flex;
+      align-items: center;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 10px;
+      }
+      .dashboard-container {
+        padding: 20px 16px;
+        border-radius: 16px;
+      }
+      .device-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .btn-copy {
+        width: 100%;
+        justify-content: center;
+      }
+      .device-details {
+        margin-right: 0;
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>MAC log UT</h2>
+  <div class="dashboard-container">
+    <header>
+      <h1>MAC Log Center</h1>
+      <div class="subtitle">ระบบบันทึกข้อมูล MAC Address สำหรับใช้งานทั่วไป</div>
+    </header>
 
-  <h3>Area 1</h3>
-  <div class="device"><span>04:B0:A5:BA:F3:67:80 - Air comp.</span><button onclick="copyMac('04:B0:A5:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:8C:A1:BA:F3:67:81 - Raw water</span><button onclick="copyMac('04:8C:A1:BA:F3:67:81')">คัดลอก</button></div>
-  <div class="device"><span>04:D4:A6:BA:F3:67:80 - Gen 3</span><button onclick="copyMac('04:D4:A6:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:3A:A0:BA:F3:67:81 - Sale gas</span><button onclick="copyMac('04:3A:A0:BA:F3:67:81')">คัดลอก</button></div>
-  <div class="device"><span>04:53:AE:BA:F3:67:80 - Chemical Cooling</span><button onclick="copyMac('04:53:AE:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:2D:A5:BA:F3:67:80 - STEAM & CONDENSATE</span><button onclick="copyMac('04:2D:A5:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:20:A2:BA:F3:67:80 - ML-1 Pump</span><button onclick="copyMac('04:20:A2:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:59:A1:BA:F3:67:80 - ML-1 Instrument Air</span><button onclick="copyMac('04:59:A1:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:7D:A1:BA:F3:67:80 - ML-1 Sale gas</span><button onclick="copyMac('04:7D:A1:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:1A:A1:BA:F3:67:80 - ML-1 Gen3 </span><button onclick="copyMac('04:1A:A1:BA:F3:67:80')">คัดลอก</button></div>
+    <!-- Tabs Toggle -->
+    <div class="tabs-wrapper">
+      <button class="tab-btn active" data-tab="ut" onclick="switchTab('ut')">
+        <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        UT Log
+      </button>
+      <button class="tab-btn" data-tab="process" onclick="switchTab('process')">
+        <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Process Log
+      </button>
+    </div>
 
-  <h3>Area 2</h3>
-  <div class="device"><span>04:33:A0:BA:F3:67:81 - Cooling Towe</span><button onclick="copyMac('04:33:A0:BA:F3:67:81')">คัดลอก</button></div>
-  <div class="device"><span>04:7A:A1:BA:F3:67:80 - CHEMICAL OF BOILER</span><button onclick="copyMac('04:7A:A1:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:7A:09:BA:F3:67:84 - AUX. WHB. CHP.</span><button onclick="copyMac('04:7A:09:BA:F3:67:84')">คัดลอก</button></div>
-  <div class="device"><span>04:85:A1:BA:F3:67:80 - Steam Turbine/Refrigeration</span><button onclick="copyMac('04:85:A1:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:06:A5:BA:F3:67:81 - 707 Lube Oil Purify</span><button onclick="copyMac('04:06:A5:BA:F3:67:81')">คัดลอก</button></div>
-  <div class="device"><span>04:78:06:BA:F3:67:84 - Condensate</span><button onclick="copyMac('04:78:06:BA:F3:67:84')">คัดลอก</button></div>
-  <div class="device"><span>04:0D:AD:BA:F3:67:80 - ค่าไฟ Main sub1</span><button onclick="copyMac('04:0D:AD:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:65:A2:BA:F3:67:80 - ML-1 Cooling</span><button onclick="copyMac('04:65:A2:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:F5:A4:BA:F3:67:80 - ML-1 Refrig</span><button onclick="copyMac('04:F5:A4:BA:F3:67:80')">คัดลอก</button></div>
+    <!-- Search input -->
+    <div class="search-wrapper">
+      <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="search-input" class="search-input" placeholder="ค้นหาตาม MAC หรือชื่ออุปกรณ์..." oninput="filterList()">
+    </div>
 
+    <!-- UT Log Content -->
+    <div id="ut" class="tab-content active">
+      <!-- Area 1 -->
+      <div class="area-section">
+        <div class="area-header">Area 1</div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Air comp.</span>
+            <span class="device-mac">04:B0:A5:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:B0:A5:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Raw water</span>
+            <span class="device-mac">04:8C:A1:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:8C:A1:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Gen 3</span>
+            <span class="device-mac">04:D4:A6:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:D4:A6:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Sale gas</span>
+            <span class="device-mac">04:3A:A0:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:3A:A0:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Chemical Cooling</span>
+            <span class="device-mac">04:53:AE:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:53:AE:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">STEAM & CONDENSATE</span>
+            <span class="device-mac">04:2D:A5:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:2D:A5:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Pump</span>
+            <span class="device-mac">04:20:A2:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:20:A2:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Instrument Air</span>
+            <span class="device-mac">04:59:A1:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:59:A1:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Sale gas</span>
+            <span class="device-mac">04:7D:A1:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:7D:A1:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Gen3</span>
+            <span class="device-mac">04:1A:A1:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:1A:A1:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+      </div>
 
-  <h3>Area 3</h3>
-  <div class="device"><span>04:D1:AE:BA:F3:67:80 - RAW WATER SEDIMENTRATION</span><button onclick="copyMac('04:D1:AE:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:88:A0:BA:F3:67:81 - UF, Activeted</span><button onclick="copyMac('04:88:A0:BA:F3:67:81')">คัดลอก</button></div>
-  <div class="device"><span>04:26:A1:BA:F3:67:80 - RO</span><button onclick="copyMac('04:26:A1:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:3C:A2:BA:F3:67:80 - EDI</span><button onclick="copyMac('04:3C:A2:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:86:A0:BA:F3:67:81 - Magna</span><button onclick="copyMac('04:86:A0:BA:F3:67:81')">คัดลอก</button></div>
-  <div class="device"><span>04:FC:AA:BA:F3:67:80 - UF/RO Chemical</span><button onclick="copyMac('04:FC:AA:BA:F3:67:80')">คัดลอก</button></div>
-  <div class="device"><span>04:EB:05:BA:F3:67:84 - ML-1</span><button onclick="copyMac('04:EB:05:BA:F3:67:84')">คัดลอก</button></div>
-</div>
+      <!-- Area 2 -->
+      <div class="area-section">
+        <div class="area-header">Area 2</div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Cooling Towe</span>
+            <span class="device-mac">04:33:A0:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:33:A0:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">CHEMICAL OF BOILER</span>
+            <span class="device-mac">04:7A:A1:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:7A:A1:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">AUX. WHB. CHP.</span>
+            <span class="device-mac">04:7A:09:BA:F3:67:84</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:7A:09:BA:F3:67:84')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Steam Turbine/Refrigeration</span>
+            <span class="device-mac">04:85:A1:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:85:A1:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">707 Lube Oil Purify</span>
+            <span class="device-mac">04:06:A5:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:06:A5:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Condensate</span>
+            <span class="device-mac">04:78:06:BA:F3:67:84</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:78:06:BA:F3:67:84')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ค่าไฟ Main sub1</span>
+            <span class="device-mac">04:0D:AD:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:0D:AD:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Cooling</span>
+            <span class="device-mac">04:65:A2:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:65:A2:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Refrig</span>
+            <span class="device-mac">04:F5:A4:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:F5:A4:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+      </div>
 
-<script>
-  function copyMac(mac) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      // ใช้ Clipboard API ได้
-      navigator.clipboard.writeText(mac).then(() => {
-        alert("คัดลอก MAC: " + mac);
-      }).catch(() => {
-        fallbackCopy(mac);
+      <!-- Area 3 -->
+      <div class="area-section">
+        <div class="area-header">Area 3</div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">RAW WATER SEDIMENTRATION</span>
+            <span class="device-mac">04:D1:AE:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:D1:AE:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">UF, Activeted</span>
+            <span class="device-mac">04:88:A0:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:88:A0:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">RO</span>
+            <span class="device-mac">04:26:A1:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:26:A1:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">EDI</span>
+            <span class="device-mac">04:3C:A2:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:3C:A2:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Magna</span>
+            <span class="device-mac">04:86:A0:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:86:A0:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">UF/RO Chemical</span>
+            <span class="device-mac">04:FC:AA:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:FC:AA:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1</span>
+            <span class="device-mac">04:EB:05:BA:F3:67:84</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:EB:05:BA:F3:67:84')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process Log Content -->
+    <div id="process" class="tab-content">
+      <!-- Area 1 -->
+      <div class="area-section">
+        <div class="area-header">Area 1</div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">process5</span>
+            <span class="device-mac">04:0E:A2:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:0E:A2:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc empty">ไม่มีข้อมูลชื่อเครื่อง</span>
+            <span class="device-mac">04:0E:A3:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:0E:A3:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">process1& x70301</span>
+            <span class="device-mac">04:23:A1:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:23:A1:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">process4</span>
+            <span class="device-mac">04:2C:A0:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:2C:A0:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc empty">ไม่มีข้อมูลชื่อเครื่อง</span>
+            <span class="device-mac">04:31:A6:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:31:A6:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">process3</span>
+            <span class="device-mac">04:49:A0:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:49:A0:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">process6</span>
+            <span class="device-mac">04:AF:06:BA:F3:67:84</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:AF:06:BA:F3:67:84')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1</span>
+            <span class="device-mac">04:C2:A2:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:C2:A2:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1</span>
+            <span class="device-mac">04:E7:A4:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:E7:A4:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Area 2 -->
+      <div class="area-section">
+        <div class="area-header">Area 2</div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Process 2-01 Pump 70306</span>
+            <span class="device-mac">04:16:00:BA:F3:67:85</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:16:00:BA:F3:67:85')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Benfield 1 Pump1 ( 04)</span>
+            <span class="device-mac">04:3D:A2:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:3D:A2:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Process2-06 Benfield 2 Pump2</span>
+            <span class="device-mac">04:45:A2:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:45:A2:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Process2-04 Benfield 1 Pump1</span>
+            <span class="device-mac">04:57:A6:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:57:A6:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Dehy GAS Dryer</span>
+            <span class="device-mac">04:6B:A2:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:6B:A2:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">D70102 Benfiled 2 (02)</span>
+            <span class="device-mac">04:6F:A6:BA:F3:67:81</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:6F:A6:BA:F3:67:81')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Check Pump</span>
+            <span class="device-mac">04:77:A1:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:77:A1:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">ML-1 Check Fin Fan</span>
+            <span class="device-mac">04:7D:04:BA:F3:67:84</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:7D:04:BA:F3:67:84')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+        <div class="device-card">
+          <div class="device-details">
+            <span class="device-desc">Stationry</span>
+            <span class="device-mac">04:E6:AE:BA:F3:67:80</span>
+          </div>
+          <button class="btn-copy" onclick="copyMac(this, '04:E6:AE:BA:F3:67:80')">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>คัดลอก</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-container">
+    <div class="toast-icon">
+      <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <span id="toast-text">คัดลอก MAC Address เรียบร้อยแล้ว!</span>
+  </div>
+
+  <script>
+    // Tab switching logic
+    function switchTab(tabId) {
+      // Update buttons active classes
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.getAttribute('data-tab') === tabId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
       });
-    } else {
-      // ไม่รองรับ Clipboard API → fallback
-      fallbackCopy(mac);
+
+      // Show the selected tab content, hide others
+      document.querySelectorAll('.tab-content').forEach(content => {
+        if (content.id === tabId) {
+          content.classList.add('active');
+        } else {
+          content.classList.remove('active');
+        }
+      });
+
+      // Clear search query and filter layout
+      document.getElementById('search-input').value = '';
+      filterList();
     }
-  }
 
-  function fallbackCopy(mac) {
-    const textarea = document.createElement("textarea");
-    textarea.value = mac;
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      document.execCommand("copy");
-      alert("คัดลอก MAC: " + mac);
-    } catch (err) {
-      alert("ไม่สามารถคัดลอกได้ โปรดลองอีกครั้ง");
+    // Live search filter logic
+    function filterList() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const activeTabContent = document.querySelector('.tab-content.active');
+      const areas = activeTabContent.querySelectorAll('.area-section');
+
+      areas.forEach(area => {
+        let visibleCards = 0;
+        const cards = area.querySelectorAll('.device-card');
+
+        cards.forEach(card => {
+          const descText = card.querySelector('.device-desc').textContent.toLowerCase();
+          const macText = card.querySelector('.device-mac').textContent.toLowerCase();
+
+          if (descText.includes(query) || macText.includes(query)) {
+            card.style.display = 'flex';
+            visibleCards++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Hide the whole area section if there are no matching cards
+        if (visibleCards > 0) {
+          area.style.display = 'block';
+        } else {
+          area.style.display = 'none';
+        }
+      });
     }
-    document.body.removeChild(textarea);
-  }
-</script>
 
+    // Copy to clipboard functionality with animation and toast
+    function copyMac(buttonElement, macAddress) {
+      // 1. Perform clipboard write
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(macAddress)
+          .then(() => handleCopySuccess(buttonElement, macAddress))
+          .catch(() => fallbackCopy(buttonElement, macAddress));
+      } else {
+        fallbackCopy(buttonElement, macAddress);
+      }
+    }
 
+    // Modern fallback copy method for legacy browsers/environments
+    function fallbackCopy(buttonElement, macAddress) {
+      const textarea = document.createElement("textarea");
+      textarea.value = macAddress;
+      // Prevent scrolling to bottom on append
+      textarea.style.position = "fixed";
+      textarea.style.top = "0";
+      textarea.style.left = "0";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      
+      try {
+        const success = document.execCommand("copy");
+        if (success) {
+          handleCopySuccess(buttonElement, macAddress);
+        } else {
+          showToast("ไม่สามารถคัดลอกได้ โปรดคัดลอกด้วยตนเอง", false);
+        }
+      } catch (err) {
+        showToast("เกิดข้อผิดพลาดในการคัดลอก", false);
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // Handle copy success state (button text/color change and toast popup)
+    function handleCopySuccess(btn, mac) {
+      // Show toast notification
+      showToast("คัดลอก MAC: " + mac + " เรียบร้อยแล้ว!");
+
+      // Update button state visually
+      const originalHTML = btn.innerHTML;
+      btn.classList.add('copied');
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>คัดลอกแล้ว</span>
+      `;
+      btn.disabled = true;
+
+      // Revert button after 1.5 seconds
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      }, 1500);
+    }
+
+    // Toast triggers
+    let toastTimeout;
+    function showToast(message, isSuccess = true) {
+      const toast = document.getElementById("toast");
+      const toastText = document.getElementById("toast-text");
+      
+      toastText.textContent = message;
+      
+      // Customize theme based on status
+      const icon = toast.querySelector('.toast-icon');
+      if (isSuccess) {
+        icon.style.color = "var(--success-color)";
+      } else {
+        icon.style.color = "#ef4444"; // Red for errors
+      }
+
+      toast.classList.add("show");
+
+      // Clear previous timeout if any
+      clearTimeout(toastTimeout);
+      
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2500);
+    }
+  </script>
 </body>
 </html>
