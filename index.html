@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MAC Address List</title>
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+      background-color: #e0f7fa;
+      padding: 30px;
+      color: #333;
+    }
+    .container {  width: 100%;
+  max-width: 800px;
+  margin: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+    }
+    h2 {
+      text-align: center;
+      color: #00796b;
+      margin-bottom: 20px;
+    }
+    h3 {
+      margin-top: 30px;
+      color: #00796b;
+    }
+    .device {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin: 8px 0;
+      flex-wrap: wrap;
+    }
+    .device span {
+  font-size: 15px;
+  flex: 1 1 60%;
+  min-width: 180px;
+  margin-bottom: 5px;
+  word-break: break-word;
+    }
+    button {
+  padding: 8px 15px;
+  background-color: #00bcd4;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #0097a7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>MAC log UT</h2>
+
+  <h3>Area 1</h3>
+  <div class="device"><span>04:B0:A5:BA:F3:67:80 - Air comp.</span><button onclick="copyMac('04:B0:A5:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:8C:A1:BA:F3:67:81 - Raw water</span><button onclick="copyMac('04:8C:A1:BA:F3:67:81')">คัดลอก</button></div>
+  <div class="device"><span>04:D4:A6:BA:F3:67:80 - Gen 3</span><button onclick="copyMac('04:D4:A6:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:3A:A0:BA:F3:67:81 - Sale gas</span><button onclick="copyMac('04:3A:A0:BA:F3:67:81')">คัดลอก</button></div>
+  <div class="device"><span>04:53:AE:BA:F3:67:80 - Chemical Cooling</span><button onclick="copyMac('04:53:AE:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:2D:A5:BA:F3:67:80 - STEAM & CONDENSATE</span><button onclick="copyMac('04:2D:A5:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:20:A2:BA:F3:67:80 - ML-1 Pump</span><button onclick="copyMac('04:20:A2:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:59:A1:BA:F3:67:80 - ML-1 Instrument Air</span><button onclick="copyMac('04:59:A1:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:7D:A1:BA:F3:67:80 - ML-1 Sale gas</span><button onclick="copyMac('04:7D:A1:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:1A:A1:BA:F3:67:80 - ML-1 Gen3 </span><button onclick="copyMac('04:1A:A1:BA:F3:67:80')">คัดลอก</button></div>
+
+  <h3>Area 2</h3>
+  <div class="device"><span>04:33:A0:BA:F3:67:81 - Cooling Towe</span><button onclick="copyMac('04:33:A0:BA:F3:67:81')">คัดลอก</button></div>
+  <div class="device"><span>04:7A:A1:BA:F3:67:80 - CHEMICAL OF BOILER</span><button onclick="copyMac('04:7A:A1:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:7A:09:BA:F3:67:84 - AUX. WHB. CHP.</span><button onclick="copyMac('04:7A:09:BA:F3:67:84')">คัดลอก</button></div>
+  <div class="device"><span>04:85:A1:BA:F3:67:80 - Steam Turbine/Refrigeration</span><button onclick="copyMac('04:85:A1:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:06:A5:BA:F3:67:81 - 707 Lube Oil Purify</span><button onclick="copyMac('04:06:A5:BA:F3:67:81')">คัดลอก</button></div>
+  <div class="device"><span>04:78:06:BA:F3:67:84 - Condensate</span><button onclick="copyMac('04:78:06:BA:F3:67:84')">คัดลอก</button></div>
+  <div class="device"><span>04:0D:AD:BA:F3:67:80 - ค่าไฟ Main sub1</span><button onclick="copyMac('04:0D:AD:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:65:A2:BA:F3:67:80 - ML-1 Cooling</span><button onclick="copyMac('04:65:A2:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:F5:A4:BA:F3:67:80 - ML-1 Refrig</span><button onclick="copyMac('04:F5:A4:BA:F3:67:80')">คัดลอก</button></div>
+
+
+  <h3>Area 3</h3>
+  <div class="device"><span>04:D1:AE:BA:F3:67:80 - RAW WATER SEDIMENTRATION</span><button onclick="copyMac('04:D1:AE:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:88:A0:BA:F3:67:81 - UF, Activeted</span><button onclick="copyMac('04:88:A0:BA:F3:67:81')">คัดลอก</button></div>
+  <div class="device"><span>04:26:A1:BA:F3:67:80 - RO</span><button onclick="copyMac('04:26:A1:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:3C:A2:BA:F3:67:80 - EDI</span><button onclick="copyMac('04:3C:A2:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:86:A0:BA:F3:67:81 - Magna</span><button onclick="copyMac('04:86:A0:BA:F3:67:81')">คัดลอก</button></div>
+  <div class="device"><span>04:FC:AA:BA:F3:67:80 - UF/RO Chemical</span><button onclick="copyMac('04:FC:AA:BA:F3:67:80')">คัดลอก</button></div>
+  <div class="device"><span>04:EB:05:BA:F3:67:84 - ML-1</span><button onclick="copyMac('04:EB:05:BA:F3:67:84')">คัดลอก</button></div>
+</div>
+
+<script>
+  function copyMac(mac) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      // ใช้ Clipboard API ได้
+      navigator.clipboard.writeText(mac).then(() => {
+        alert("คัดลอก MAC: " + mac);
+      }).catch(() => {
+        fallbackCopy(mac);
+      });
+    } else {
+      // ไม่รองรับ Clipboard API → fallback
+      fallbackCopy(mac);
+    }
+  }
+
+  function fallbackCopy(mac) {
+    const textarea = document.createElement("textarea");
+    textarea.value = mac;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      alert("คัดลอก MAC: " + mac);
+    } catch (err) {
+      alert("ไม่สามารถคัดลอกได้ โปรดลองอีกครั้ง");
+    }
+    document.body.removeChild(textarea);
+  }
+</script>
+
+
+</body>
+</html>
